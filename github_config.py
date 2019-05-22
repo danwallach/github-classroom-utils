@@ -5,8 +5,14 @@
 
 # see installation and usage instructions in README.md
 
-default_github_token = "[Your token here]"
-default_github_organization = "RiceComp215-Fall2018"
+# your GitHub API token here, inside the quotation marks
+# https://github.com/blog/1509-personal-api-tokens
+default_github_token = ""
+
+# your GitHub organization (https://github.com/Organization/Repository/...)
+default_github_organization = ""
+
+# your default prefix on the Repository name for queries
 default_prefix = ""
 
 # for use with github_graders:
