@@ -63,16 +63,17 @@ for repo in github_repos:
 
     print("\\begin{table}")
     print("\\begin{tabular}{lp{4in}l}")
-    print("{\\bf Commit ID} & {\\bf Comment} & {\\bf GitHub push time} \\\\")
+    print("{\\bf GitHub ID} & {\\bf Commit ID} & {\\bf Comment} & {\\bf GitHub push time} \\\\")
     print("\\hline")
     for event in event_list:
         try:
+            github_id = event['actor']['login']
             date = localtime_from_iso_datestr(event['created_at'])
             commits = event['payload']['commits']
             for commit in commits:
                 commit_message = tex_escape(commit['message'].splitlines()[0])  # only the first line if multiline
                 commit_hash = commit['sha'][0:7]  # only the first 7 characters: how GitHub reports commitIDs on the web
-                print("%s & %s & %s \\\\" % (commit_hash, commit_message, date))
+                print("%s & {\\tt %s} & %s & {\\tt %s} \\\\" % (github_id, commit_hash, commit_message, date))
         except KeyError:
             print("Error: malformed event!")
             pp.pprint(event)
