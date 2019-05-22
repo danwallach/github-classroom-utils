@@ -162,6 +162,8 @@ capture this output while it's still available.
    ran from a `cron` job to force all repos to "activate" with Travis, years ago,
    when Travis didn't know how to automatically activate new repos.)
    
+- https://classroom.github.com/assistant - GitHub's web-based tool for bulk repo downloads ([open source](https://github.com/education/classroom-assistant/))
+
 - https://github.com/dwalkes/github-classroom-scripts - knows how to set up pull requests
 
 - https://github.com/ccannon94/github-classroom-utilties - knows how to clone assignments, add files, and to
