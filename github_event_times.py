@@ -58,8 +58,7 @@ pp = pprint.PrettyPrinter(indent=2)
 
 
 for repo in github_repos:
-    response = get_endpoint("repos/%s/%s/events" % (github_organization, repo), github_token)
-
+    response = get_github_endpoint_paged_list("repos/%s/%s/events" % (github_organization, repo), github_token)
     event_list = [x for x in response if x['type'] == 'PushEvent']
 
     print("\\begin{table}")
@@ -68,7 +67,7 @@ for repo in github_repos:
     print("\\hline")
     for event in event_list:
         try:
-            date = localtime_from_datestr(event['created_at'])
+            date = localtime_from_iso_datestr(event['created_at'])
             commits = event['payload']['commits']
             for commit in commits:
                 commit_message = tex_escape(commit['message'].splitlines()[0])  # only the first line if multiline

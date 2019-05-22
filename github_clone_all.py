@@ -33,7 +33,7 @@ github_organization = args.org[0]
 github_token = args.token[0]
 out_dir = args.out[0]
 
-filtered_repo_list = fetch_matching_repos(github_organization, github_prefix, github_token)
+filtered_repo_list = query_matching_repos(github_organization, github_prefix, github_token)
 print("%d repos found for %s/%s" % (len(filtered_repo_list), github_organization, github_prefix))
 
 # before we start getting any repos, we need a directory to put them

@@ -134,7 +134,7 @@ if not grader_list:
 ids_seen = {}
 submissions = {}
 
-filtered_repo_list = [x for x in fetch_matching_repos(github_organization, github_prefix, github_token)
+filtered_repo_list = [x for x in query_matching_repos(github_organization, github_prefix, github_token)
                       if desired_user(x['name'])]
 
 # Let's do a duplicate check, and also sort out the URL we want to use

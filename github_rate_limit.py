@@ -16,7 +16,7 @@ parser.add_argument('--token',
 args = parser.parse_args()
 github_token = args.token[0]
 
-result = get_endpoint("rate_limit", github_token)
+result = get_github_endpoint("rate_limit", github_token)
 
 if result == {}:
     exit(1)

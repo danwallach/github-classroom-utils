@@ -86,7 +86,8 @@ If you checked the wrong box when setting up GitHub Classroom, and all
 your students' repositories are public, when you meant them to be private,
 you can go back into GitHub Classroom's settings and make sure that *future*
 cloned repositories will be private, but what about the existing ones? This
-tool will tell GitHub to make private all the matching repositories.
+tool will tell GitHub to make private all the matching repositories. (I've
+needed this twice in so many years, so I figure others might need this as well.)
 
 ### github_graders
 
@@ -94,10 +95,6 @@ If you're using GitHub Classroom, one of the things you may need to do is assign
 student submissions to graders. This project does this as a random mapping,
 printing a document that you might share with your graders on Piazza or whatever
 forum, with grader names and student project hyperlinks.
-
-Lets say you want to assign graders for every repo beginning with `comp215-week06`.
-This tool will scan all the repos matching the prefix and will make the
-random assignment. 
 
 First, create a list of GitHub IDs that correspond to your graders and
 place that in the `default_grader_list` in `github_config.py`.
@@ -121,16 +118,16 @@ random, but it cannot print all this per-user information, since
 the user names aren't always in the project name. We make our
 students edit the `README.md` file to include this information.
  
- 
 Typical usage: `python3 github_graders.py --prefix comp215-week06` will 
-print out everything you need. We post this on Piazza, visible only to
-the graders, and we ask the graders to edit it to mark the students as
-"done" when they're done with their grading session. (This helps us see
+print out everything you need, assuming your assignment repos are named `comp215-week06`
+with the students' names afterward. 
+
+The output of this tool is in Markdown format, which Piazza has recently added.
+Select the Markdown button before cutting-and-pasting. We post this on Piazza,
+visible only to the graders, and we ask the graders to edit the post to mark the
+students as "done" when they're done with their grading session. (This helps us see
 what graders haven't finished their work and, if necessary, assign other
 graders to pick up the slack.)
-
-Note: the output is in Markdown format, which Piazza has recently added.
-Select the Markdown button before cutting-and-pasting.
 
 ### github_event_times
 
@@ -148,6 +145,10 @@ and it will print a table with the commit IDs (7 digit prefix, same
 as reported on GitHub's list of commits), the commit string, and the
 time at which that commit was pushed to GitHub, converted to your
 local timezone (from the UTC times reported by GitHub).
+
+Note that GitHub only retains the underlying event data for a small
+amount of time, maybe three months. If you see something unusual, 
+capture this output while it's still available.
 
 ## See also
 

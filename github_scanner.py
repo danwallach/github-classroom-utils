@@ -28,13 +28,12 @@ def load_cache(github_organization: str, verbose: bool = True):
                 data = json.loads(file.read())
                 scanner_cache[github_organization] = data
                 if verbose:
-                    print("Restored cache for: " + github_organization)
+                    print("Restored cache: " + github_organization)
 
     except Exception as e:
-        if verbose:
-            print("Unexpected error loading cache: " + cache_name)
-            print(e)
-            exit(1)
+        print("Unexpected error loading cache: " + cache_name)
+        print(e)
+        exit(1)
 
 
 def store_cache(github_organization: str, verbose: bool = True):
@@ -60,13 +59,21 @@ def store_cache(github_organization: str, verbose: bool = True):
 
 
 def github_headers(github_token: str) -> dict:
+    """
+    Given a GitHub access token, produces a Python dict suitable for passing to requests' headers field.
+    If github_token is an empty string, this prints an error message and crashes the program.
+    """
+    if github_token == "":
+        print("\nError: github_token isn't defined, use the --token argument or edit github_config.py to set it")
+        exit(1)
+
     return {
         "User-Agent": "GitHubClassroomUtils/1.0",
         "Authorization": "token " + github_token
     }
 
 
-def query_github(github_organization: str, github_token: str, verbose: bool = True) -> List[dict]:
+def query_repos_cached(github_organization: str, github_token: str, verbose: bool = True) -> List[dict]:
     load_cache(github_organization, verbose)
 
     # How we can tell if our cache is valid: we do a HEAD request to GitHub, which doesn't consume any
@@ -91,7 +98,7 @@ def query_github(github_organization: str, github_token: str, verbose: bool = Tr
                                 headers=request_headers)
 
     if head_status.status_code != 200:
-        print('Error connecting to GitHub API: ' + head_status.content)
+        print('Error connecting to GitHub API: ' + str(head_status.content))
         exit(1)
 
     current_etag = head_status.headers["ETag"]
@@ -107,32 +114,8 @@ def query_github(github_organization: str, github_token: str, verbose: bool = Tr
     if verbose:
         sys.stdout.write('Getting repo list from GitHub')
 
-    all_repos_list = []
-    page_number = 1
-
-    while True:
-        if verbose:
-            sys.stdout.write('.')
-            sys.stdout.flush()
-    
-        repos_page = requests.get('https://api.github.com/orgs/' + github_organization + '/repos',
-                                  headers=request_headers,
-                                  params={'page': page_number})
-        page_number = page_number + 1
-
-        if repos_page.status_code != 200:
-            if verbose:
-                print('Error connecting to GitHub API: ' + repos_page.content)
-            exit(1)
-
-        repos = repos_page.json()
-    
-        if len(repos) == 0:
-            if verbose:
-                print(" Done.")
-            break
-
-        all_repos_list = all_repos_list + repos
+    all_repos_list = get_github_endpoint_paged_list('https://api.github.com/orgs/' + github_organization + '/repos',
+                                                    github_token, verbose)
 
     scanner_cache[github_organization] = {}  # force it to exist before we create sub-keys
     scanner_cache[github_organization]['ETag'] = current_etag
@@ -142,7 +125,7 @@ def query_github(github_organization: str, github_token: str, verbose: bool = Tr
     return all_repos_list
 
 
-def fetch_matching_repos(github_organization: str,
+def query_matching_repos(github_organization: str,
                          github_repo_prefix: str,
                          github_token: str,
                          verbose: bool = True) -> List[dict]:
@@ -172,7 +155,7 @@ def fetch_matching_repos(github_organization: str,
     :param verbose: Specifies whether anything should be printed to show the user status updates.
     :return: A list of Python dicts containing the results of the query.
     """
-    result = query_github(github_organization, github_token, verbose)
+    result = query_repos_cached(github_organization, github_token, verbose)
     return [x for x in result if x['name'].startswith(github_repo_prefix)]
 
 
@@ -182,15 +165,49 @@ def make_repo_private(repo: dict, github_token: str):
                    json={'private': True})
 
 
-def get_endpoint(endpoint: str, github_token: str, verbose: bool = True) -> dict:
+def get_github_endpoint(endpoint: str, github_token: str, verbose: bool = True) -> dict:
     result = requests.get('https://api.github.com/' + endpoint, headers=github_headers(github_token))
 
     if result.status_code != 200:
         if verbose:
-            print("Failed to load %s from GitHub: %s" % (endpoint, result.content))
+            print("Failed to load %s from GitHub: %s" % (endpoint, str(result.content)))
         return {}
 
     return result.json()
+
+
+def get_github_endpoint_paged_list(endpoint: str, github_token: str, verbose: bool = True) -> List[dict]:
+    page_number = 1
+    result_list = []
+
+    if verbose:
+        sys.stdout.write('Fetching from GitHub')
+
+    while True:
+        if verbose:
+            sys.stdout.write('.')
+            sys.stdout.flush()
+
+        result = requests.get('https://api.github.com/' + endpoint,
+                              headers=github_headers(github_token),
+                              params={'page': page_number})
+        page_number = page_number + 1
+
+        if result.status_code != 200:
+            if verbose:
+                print("Failed to load %s from GitHub: %s" % (endpoint, str(result.content)))
+            return result_list
+
+        result_l = result.json()
+
+        if len(result_l) == 0:
+            if verbose:
+                print(" Done.")
+            break
+
+        result_list = result_list + result_l
+
+    return result_list
 
 
 # And now for a bunch of code to handle times and timezones. This is probably going to
@@ -207,5 +224,5 @@ def localtime_from_timestamp(timestamp: float) -> str:
     return str(datetime.fromtimestamp(timestamp, LOCAL_TIMEZONE))
 
 
-def localtime_from_datestr(date_str: str) -> str:
+def localtime_from_iso_datestr(date_str: str) -> str:
     return datetime_to_local_timezone(iso8601.parse_date(date_str))
