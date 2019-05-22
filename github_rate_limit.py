@@ -4,7 +4,7 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 
 import argparse
-import pprint
+import json
 from github_config import *
 from github_scanner import *
 
@@ -22,7 +22,10 @@ result = get_endpoint("rate_limit", github_token)
 if result == {}:
     exit(1)
 
-pp = pprint.PrettyPrinter(indent=4)
-pp.pprint(result)
+formatted_result = json.dumps(result, sort_keys=True, indent=2)
+print(formatted_result)
+print("")
+
 timestamp = result['resources']['core']['reset']
-print("Core reset time (local): " + localtime_from_timestamp(timestamp))
+print("Core reset time (local timezone): " + localtime_from_timestamp(timestamp))
+print("Core remaining / limit: %d / %d" % (result['resources']['core']['remaining'], result['resources']['core']['limit']))

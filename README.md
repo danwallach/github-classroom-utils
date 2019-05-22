@@ -53,7 +53,16 @@ These scans can take a while to run and also burn through your available
 GitHub API request limit, so it's important to cache the results. (You'll
 see a multi-megabyte JSON file written out as a dot-file in the current directory.)
 
-Each tool below let's you run it with a `--help` argument which will summarize
+**If you suspect the cache is out of date***, that is, if you see
+student repos on GitHub that aren't being cloned or aren't being
+assigned to graders, then it's possible that there's a bug with our
+caching layer. The workaround is to remove the relevant dotfile (which
+has a name like
+`.github-classroom-utils.RiceComp427-Spring2019.json`),
+then forcing a rescan of the students' repositories. *Please report
+this to `dwallach@rice.edu` so we can try to debug it.*
+
+**Tool usage.** Each tool below let's you run it with a `--help` argument which will summarize
 the command-line arguments. 
 
 ### github_clone_all
