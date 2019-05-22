@@ -159,9 +159,14 @@ capture this output while it's still available.
 - For dealing with Travis-CI, check out [travis-activate](https://github.com/danwallach/travis-activate).
   (Travis-CI normally "activates" immediately when a new repository is created,
    but at least once I've seen this fail. This script was something I originally
-   ran from a `cron` job to force all repos to "activate" with Travis.)
+   ran from a `cron` job to force all repos to "activate" with Travis, years ago,
+   when Travis didn't know how to automatically activate new repos.)
    
 - https://github.com/dwalkes/github-classroom-scripts - knows how to set up pull requests
 
 - https://github.com/ccannon94/github-classroom-utilties - knows how to clone assignments, add files, and to
   set things up for a run of [MOSS](https://theory.stanford.edu/~aiken/moss/)
+
+- https://github.com/osteele/multiclone - another repo cloning tool, written in Golang
+
+- https://github.com/konzy/mass_clone - there are many forks of this, some with additional features
