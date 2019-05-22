@@ -4,7 +4,6 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 
 import argparse
-import json
 from github_config import *
 from github_scanner import *
 
@@ -28,4 +27,5 @@ print("")
 
 timestamp = result['resources']['core']['reset']
 print("Core reset time (local timezone): " + localtime_from_timestamp(timestamp))
-print("Core remaining / limit: %d / %d" % (result['resources']['core']['remaining'], result['resources']['core']['limit']))
+print("Core remaining / limit: %d / %d" % (result['resources']['core']['remaining'],
+                                           result['resources']['core']['limit']))
