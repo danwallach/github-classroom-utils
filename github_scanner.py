@@ -130,10 +130,11 @@ def query_repos_cached(github_organization: str, github_token: str, verbose: boo
     scanner_cache[github_organization]['ETag'] = current_etag
     scanner_cache[github_organization]['Contents'] = all_repos_list
 
+    num_repos = len(all_repos_list)
     if verbose:
-        print("Found %d entries in %s" % (len(all_repos_list), github_organization))
+        print("Found %d repos in %s" % (num_repos, github_organization))
 
-    if len(all_repos_list) != 0:
+    if num_repos != 0:
         # if we got an empty list, then something went wrong so don't write it to the cache
         store_cache(github_organization, verbose)
 
