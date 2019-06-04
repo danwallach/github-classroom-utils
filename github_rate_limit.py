@@ -21,8 +21,8 @@ result = get_github_endpoint("rate_limit", github_token)
 if result == {}:
     exit(1)
 
-formatted_result = json.dumps(result, sort_keys=True, indent=2)
-print(formatted_result)
+print("GitHub API Results:")
+print(dict_to_pretty_json(result))
 print("")
 
 timestamp = result['resources']['core']['reset']

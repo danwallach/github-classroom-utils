@@ -13,8 +13,13 @@ import os
 import json
 from typing import List
 from datetime import datetime, timezone
+from requests.models import Response
 
 scanner_cache = {}
+
+
+def dict_to_pretty_json(d: dict) -> str:
+    return json.dumps(d, sort_keys=True, indent=2)
 
 
 def load_cache(github_organization: str, verbose: bool = True):
@@ -46,8 +51,7 @@ def store_cache(github_organization: str, verbose: bool = True):
     try:
         with open(cache_name, 'w') as file:
             # Pretty-printing the results, even though they're larger. Human-legibility may come in handy.
-            data = json.dumps(scanner_cache[github_organization], sort_keys=True, indent=2)
-            file.write(data)
+            file.write(dict_to_pretty_json(scanner_cache[github_organization]))
 
             if verbose:
                 print("Wrote cache for " + github_organization)
@@ -73,6 +77,14 @@ def github_headers(github_token: str) -> dict:
     }
 
 
+def fail_on_github_errors(response: Response):
+    if response.status_code != 200:
+        print("\nRequest failed, status code: %d" % response.status_code)
+        print("Headers: %s\n" % dict_to_pretty_json(dict(response.headers)))
+        print("Body: %s\n" % dict_to_pretty_json(response.json()))
+        exit(1)
+
+
 def query_repos_cached(github_organization: str, github_token: str, verbose: bool = True) -> List[dict]:
     load_cache(github_organization, verbose)
 
@@ -96,10 +108,7 @@ def query_repos_cached(github_organization: str, github_token: str, verbose: boo
     previous_etag = scanner_cache[github_organization]["ETag"] if github_organization in scanner_cache else ""
     head_status = requests.head('https://api.github.com/orgs/' + github_organization + '/repos',
                                 headers=request_headers)
-
-    if head_status.status_code != 200:
-        print('Error connecting to GitHub API: ' + str(head_status.content))
-        exit(1)
+    fail_on_github_errors(head_status)
 
     current_etag = head_status.headers["ETag"]
 
@@ -114,14 +123,20 @@ def query_repos_cached(github_organization: str, github_token: str, verbose: boo
     if verbose:
         sys.stdout.write('Getting repo list from GitHub')
 
-    all_repos_list = get_github_endpoint_paged_list('https://api.github.com/orgs/' + github_organization + '/repos',
+    all_repos_list = get_github_endpoint_paged_list('orgs/' + github_organization + '/repos',
                                                     github_token, verbose)
 
     scanner_cache[github_organization] = {}  # force it to exist before we create sub-keys
     scanner_cache[github_organization]['ETag'] = current_etag
     scanner_cache[github_organization]['Contents'] = all_repos_list
 
-    store_cache(github_organization, verbose)
+    if verbose:
+        print("Found %d entries in %s" % (len(all_repos_list), github_organization))
+
+    if len(all_repos_list) != 0:
+        # if we got an empty list, then something went wrong so don't write it to the cache
+        store_cache(github_organization, verbose)
+
     return all_repos_list
 
 
@@ -167,11 +182,7 @@ def make_repo_private(repo: dict, github_token: str):
 
 def get_github_endpoint(endpoint: str, github_token: str, verbose: bool = True) -> dict:
     result = requests.get('https://api.github.com/' + endpoint, headers=github_headers(github_token))
-
-    if result.status_code != 200:
-        if verbose:
-            print("Failed to load %s from GitHub: %s" % (endpoint, str(result.content)))
-        return {}
+    fail_on_github_errors(result)
 
     return result.json()
 
@@ -180,23 +191,18 @@ def get_github_endpoint_paged_list(endpoint: str, github_token: str, verbose: bo
     page_number = 1
     result_list = []
 
-    if verbose:
-        sys.stdout.write('Fetching from GitHub')
-
     while True:
         if verbose:
             sys.stdout.write('.')
             sys.stdout.flush()
 
-        result = requests.get('https://api.github.com/' + endpoint,
-                              headers=github_headers(github_token),
-                              params={'page': page_number})
-        page_number = page_number + 1
+        headers = github_headers(github_token)
 
-        if result.status_code != 200:
-            if verbose:
-                print("Failed to load %s from GitHub: %s" % (endpoint, str(result.content)))
-            return result_list
+        result = requests.get('https://api.github.com/' + endpoint,
+                              headers=headers,
+                              params={'page': page_number} if page_number > 1 else {})
+        fail_on_github_errors(result)
+        page_number = page_number + 1
 
         result_l = result.json()
 
