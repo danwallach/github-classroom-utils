@@ -30,7 +30,7 @@ this on the GitHub website
       for every tool here, but it's nice to save them so you're
       not typing them over and over again.
     
-   - `defaut_github_organization`: Your organization's name
+   - `default_github_organization`: Your organization's name
    (e.g., for `https://github.com/RiceComp215-Fall2018`, the
    organization name is `RiceComp215-Fall2018`). 
    
