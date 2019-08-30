@@ -125,12 +125,10 @@ for r in sorted_results:
     x_timestamps.append(r['timestamp'])
     y_passing.append(num_passing)
 
-x_timestamps_formatted = [dt.datetime.strptime(d, '%m/%d/%Y').date() for d in x_timestamps]
-
 print("Writing %s" % output_filename)
 fig = plt.figure()
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 plt.gca().xaxis.set_major_locator(mdates.DayLocator())
-plt.plot(x_timestamps_formatted, y_passing)
+plt.plot(x_timestamps, y_passing)
 plt.gcf().autofmt_xdate()
 fig.savefig(output_filename, dpi=fig.dpi)
