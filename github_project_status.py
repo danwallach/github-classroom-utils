@@ -30,8 +30,6 @@ github_token = args.token[0]
 filtered_repo_list = query_matching_repos(github_organization, github_prefix, github_token)
 print("%d matching repos found for %s/%s" % (len(filtered_repo_list), github_organization, github_prefix))
 
-# GET /repos/:owner/:repo/commits/:ref/statuses
-
 conclusions = {'MISSING': 0}
 num_repos = 0
 num_missing = 0
@@ -44,14 +42,13 @@ for repo in sorted(filtered_repo_list, key=lambda d: str.lower(d['full_name'])):
         continue
 
     num_repos = num_repos + 1
-    # print("repo: %s" % repo_name)
 
     # The GitHub API for getting the check status requires us to know
     # the SHA1 hash for the commit we're checking.
 
     # TODO: find a way to just name the HEAD of the master branch.
-    ref_response = get_github_endpoint("repos/%s/git/refs" % repo_name, github_token)
-    head_sha = ref_response[0]['object']['sha'][0:7]
+    ref_response = get_github_endpoint_paged_list("repos/%s/git/refs" % repo_name, github_token)
+    head_sha = ref_response[0]['object']['sha']
 
     # print("repo: %s (%s)" % (repo_name, head_sha))
 
