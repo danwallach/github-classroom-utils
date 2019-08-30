@@ -150,6 +150,17 @@ Note that GitHub only retains the underlying event data for a small
 amount of time, maybe three months. If you see something unusual, 
 capture this output while it's still available.
 
+### github_project_status
+
+If you're using a continuous integration system like Travis-CI or
+GitHub Actions, then you've seen that GitHub has a nice red-X or
+green-check next to each commit that the student pushes. This
+command will read out those CI status marks from the latest
+commit from each student and will add up how many are passing
+and how many still have work yet to do. Also, if you've got a
+student who, for whatever reason, doesn't have a working CI
+process on their repository, this will flag them as "missing".
+
 ## See also
 
 - I did a talk at SIGCSE 2019 about an earlier version of these tools.

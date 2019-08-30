@@ -62,33 +62,6 @@ def group_list_by_n(l: List[T], n: int) -> List[List[T]]:
         return [l[0:n]] + group_list_by_n(l[n:], n)
 
 
-def student_name_from(repo_name: str) -> str:
-    """
-    Given a GitHub repo "name" (e.g., "comp215-week01-intro-danwallach") return the username suffix at the
-    end ("danwallach"). If it's not there, the result is an empty string ("").
-    """
-    m = re.search(github_prefix + "-(.*)$", repo_name)
-    if not m:
-        return ""  # something funny in the name, so therefore not matching
-    else:
-        # there might be a trailing dash and digits if the student did the clone thing multiple times
-        # also, we're converting everything to lower-case
-        return re.sub("-\\d+$", "", m.group(1)).lower()
-
-
-def desired_user(name: str) -> bool:
-    """
-    Given a GitHub repo "name" (e.g., "comp215-week01-intro-2017-danwallach"), returns true or false if that
-    project is something we're trying to grade now, based on the specified prefix as well as the list of graders
-    (to be ignored) and the ignore-list (also to be ignored). Since we might be dealing with student groups,
-    which can give themselves their own group names, this function defaults to True, unless it finds a reason
-    to say False.
-    """
-    m = student_name_from(name)
-    return m != "" and name.startswith(github_prefix) and name != github_prefix and \
-        m not in grader_list and m not in ignore_list
-
-
 df_students = {}  # will replace below
 df_students_success = False
 try:
@@ -133,9 +106,10 @@ if not grader_list:
 
 ids_seen = {}
 submissions = {}
+all_ignore_list = ignore_list + grader_list
 
 filtered_repo_list = [x for x in query_matching_repos(github_organization, github_prefix, github_token)
-                      if desired_user(x['name'])]
+                      if desired_user(github_prefix, all_ignore_list, x['name'])]
 
 # Let's do a duplicate check, and also sort out the URL we want to use
 print("%d repos in the initial search\n" % len(filtered_repo_list))
@@ -145,7 +119,7 @@ for repo in filtered_repo_list:
     else:
         repo['final_url'] = repo['url']
 
-    gid = student_name_from(repo['name'])
+    gid = student_name_from(github_prefix, repo['name'])
     if gid in ids_seen:
         # check if we have an exact duplicate or not ... this shouldn't happen, but ... does.
         submission_urls = [x['final_url'] for x in submissions[gid]]
