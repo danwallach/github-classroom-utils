@@ -127,7 +127,7 @@ for r in sorted_results:
 
 print("Writing %s" % output_filename)
 fig = plt.figure()
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 plt.gca().xaxis.set_major_locator(mdates.DayLocator())
 plt.plot(x_timestamps, y_passing)
 plt.gcf().autofmt_xdate()
