@@ -3,7 +3,6 @@
 # Available subject to the Apache 2.0 License
 # https://www.apache.org/licenses/LICENSE-2.0
 
-import re
 import argparse
 import random
 import pandas as pd

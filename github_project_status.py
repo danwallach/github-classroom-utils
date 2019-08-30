@@ -4,7 +4,6 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 
 import argparse
-import subprocess
 from github_config import *
 from github_scanner import *
 
@@ -33,8 +32,7 @@ print("%d matching repos found for %s/%s" % (len(filtered_repo_list), github_org
 
 # GET /repos/:owner/:repo/commits/:ref/statuses
 
-conclusions = {}
-conclusions['MISSING'] = 0
+conclusions = {'MISSING': 0}
 num_repos = 0
 num_missing = 0
 all_ignore_list = default_grader_list + default_grader_ignore_list

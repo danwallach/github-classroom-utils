@@ -75,7 +75,7 @@ def github_headers(github_token: str) -> dict:
     return {
         "User-Agent": "GitHubClassroomUtils/1.0",
         "Authorization": "token " + github_token,
-        "Accept": "application/vnd.github.antiope-preview+json" # needed for the check-suites request
+        "Accept": "application/vnd.github.antiope-preview+json"  # needed for the check-suites request
     }
 
 
@@ -261,4 +261,3 @@ def desired_user(github_prefix: str, ignore_list: List[str], name: str) -> bool:
     m = student_name_from(github_prefix, name)
     return m != "" and name.startswith(github_prefix) and name != github_prefix and \
         m not in ignore_list
-
