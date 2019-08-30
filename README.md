@@ -160,6 +160,22 @@ commit from each student and will add up how many are passing
 and how many still have work yet to do. Also, if you've got a
 student who, for whatever reason, doesn't have a working CI
 process on their repository, this will flag them as "missing".
+This command runs relatively quickly. But if you're willing to
+wait a bit and you want a nice graph, see below.
+
+### github_completion_times
+
+This takes a few minutes to run, but it reads all the available
+CI data and produces a plot over time of how many students have passed all
+the tests and gotten a green checkmark. Here's an example from my
+own students, showing work in progress toward a deadline on 2019-09-01;
+you can see roughly 100 of 170 students have completed the work on
+the evening of 2019-08-30. 
+
+![Example completion graph](example_completion.png)
+
+*(If you don't already have `matplotlib` installed,
+you'll need to install that to make the graphing work.)*
 
 ## See also
 
