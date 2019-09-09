@@ -65,11 +65,12 @@ df_students = {}  # will replace below
 df_students_success = False
 try:
     df_students = pd.read_csv(student_file_name)
+    # force lower-case of GitHub IDs
     df_students.GitHubID = df_students.GitHubID.astype(str).str.lower()  # force lower-case of GitHub IDs
     df_students_success = True
 except FileNotFoundError:
-    #    sys.stdout.write("Cannot file student info file: %s\n" % student_file_name)
-    #    sys.stdout.flush()
+    # sys.stdout.write("Cannot file student info file: %s\n" % student_file_name)
+    # sys.stdout.flush()
     pass
 
 
@@ -79,13 +80,13 @@ def student_info(github_id: str) -> str:
     the student-data CSV file with the student's name, email, etc.
     """
     if df_students_success:
-        matches = df_students[df_students['GitHubID'] == github_id]
+        matches = df_students[df_students['GitHubID'] == github_id.lower()]
         if len(matches) == 1:
             student = matches.iloc[0].to_dict()
         elif len(matches) == 0:
             sys.stdout.write("Warning: github-id (%s) not found in student info!\n" % github_id)
             sys.stdout.flush()
-            student = {'NetID': '', 'Name': '', 'Email': '', 'SID': '', 'GitHubID': github_id}
+            student = {'NetID': '', 'Name': '', 'Email': '', 'GitHubID': github_id}
         else:
             sys.stdout.write("Warning: two or more rows found for github-id (%s) in student info!\n" % github_id)
             sys.stdout.flush()
@@ -111,7 +112,7 @@ filtered_repo_list = [x for x in query_matching_repos(github_organization, githu
                       if desired_user(github_prefix, all_ignore_list, x['name'])]
 
 # Let's do a duplicate check, and also sort out the URL we want to use
-print("%d repos in the initial search\n" % len(filtered_repo_list))
+# print("%d repos in the initial search\n" % len(filtered_repo_list))
 for repo in filtered_repo_list:
     if 'html_url' in repo:
         repo['final_url'] = repo['html_url']
@@ -134,11 +135,10 @@ for repo in filtered_repo_list:
         ids_seen[gid] = 1
         submissions[gid] = [repo]
 
-
 # note: we're shuffling the graders, so different graders get lucky each week when the load isn't evenly divisible
 # and, of course, we're shuffling the repos.
 all_gids = list(submissions.keys())
-print("%d unique GitHub IDs found" % len(all_gids))
+# print("%d unique GitHub IDs found" % len(all_gids))
 random.seed()
 random.shuffle(all_gids)
 random.shuffle(grader_list)
