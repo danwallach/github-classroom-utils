@@ -4,6 +4,7 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 
 import argparse
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import datetime as dt
@@ -12,6 +13,9 @@ from github_config import *
 from github_scanner import *
 
 default_output_filename = "out.pdf"
+
+# change this to get a different timezone for your plot
+matplotlib.rcParams['timezone'] = 'US/Central'
 
 parser = argparse.ArgumentParser(description='Generate a graph of how many students are passing at any given time')
 parser.add_argument('--token',
