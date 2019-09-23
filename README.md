@@ -43,6 +43,8 @@ this on the GitHub website
    - `default_grader_list`: [Used by github_graders, see below](#github_graders)
    
    - `default_grader_ignore_list`: [Used by github_graders, see below](#github_graders)
+
+   - `default_timezone`: [used by github_completion_times, see below](#github_completion_times)
      
       
 ## Tools

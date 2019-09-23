@@ -28,3 +28,9 @@ default_grader_ignore_list = []
 #   the columns. Ours looks like: "NetID","Name","Email","SID","GitHubID".
 #   This is used to map from GitHubIDs to real names and emails.
 default_student_csv_name = "student-data.csv"
+
+# for use with github_completion_times:
+# - Your local timezone, in string format. Here's a worldwide list of
+#   all timezones that Python understands:
+#   https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
+default_timezone = "US/Central"

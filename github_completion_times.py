@@ -4,6 +4,7 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 
 import argparse
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import datetime as dt
@@ -39,6 +40,8 @@ github_organization = args.org[0]
 github_token = args.token[0]
 
 output_filename = args.output[0]
+
+matplotlib.rcParams['timezone'] = default_timezone
 
 filtered_repo_list = query_matching_repos(github_organization, github_prefix, github_token)
 print("%d matching repos found for %s/%s" % (len(filtered_repo_list), github_organization, github_prefix))
