@@ -179,15 +179,8 @@ the evening of 2019-08-30.
 *(If you don't already have `matplotlib` installed,
 you'll need to install that to make the graphing work.)*
 
-There's one line at the top of `github_completion_times` that
-you may wish to change:
-
-```python
-# change this to get a different timezone for your plot
-matplotlib.rcParams['timezone'] = 'US/Central'
-```
-
-Set this to your desired timezone such that the plot is correct for you.
+The timezone used to render the chart is set from the
+`default_timezone` setting in `github_config.py`.
 
 ## See also
 
