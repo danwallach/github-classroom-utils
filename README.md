@@ -2,6 +2,8 @@
 
 This repository contains a number of utilities that I've written (and rewritten)
 over the years to help with [GitHub Classroom](https://classroom.github.com). 
+Most recently (Oct 2019), I revamped the code to launch multiple, concurrent requests
+to the GitHub servers whenever possible. These tools now run *significantly* faster.
 
 ## Setup
 
@@ -14,8 +16,8 @@ student repositories for just that class.
 
 
 1) If you haven't already done this, you'll first need to `pip3 install
-iso8601 pandas requests` for necessary libraries.
-(Everything here requires Python3 and is tested with Python 3.7.1.
+iso8601 pandas matplotlib requests aiohttp` for necessary libraries.
+(Everything here requires Python3 and is tested with Python 3.7.2.
  Earlier versions of Python3 might or might not work.)
  
 2) Copy all the `py` files here into your class administrative repository.
@@ -76,6 +78,11 @@ Run `python3 github_clone_all.py --prefix comp215-week06 --out codedump-week06`
 and it will create the directory `codedump-week06` and will check out all
 of the matching repos into the desired directory.
 
+An optional flag, `--safe`, creates repositories that do not have your
+API token embedded in them. This means that remote Git actions that
+require the token might not work, but the repos are safer to share.
+By default, the API token is embedded in the cloned Git repos.
+
 ### github_rate_limit
 
 If you keep running these tools, you'll eventually hit the wall with
@@ -124,6 +131,11 @@ Typical usage: `python3 github_graders.py --prefix comp215-week06` will
 print out everything you need, assuming your assignment repos are named `comp215-week06`
 with the students' names afterward. 
 
+A new feature, `--teams` is useful when students are working as teams
+with GitHub Classroom. This will use GitHub's APIs to identify the
+names of each student associated with each repo and will adjust its
+printed output appropriately.
+
 The output of this tool is in Markdown format, which Piazza has recently added.
 Select the Markdown button before cutting-and-pasting. We post this on Piazza,
 visible only to the graders, and we ask the graders to edit the post to mark the
@@ -152,32 +164,17 @@ Note that GitHub only retains the underlying event data for a small
 amount of time, maybe three months. If you see something unusual, 
 capture this output while it's still available.
 
-### github_project_status
-
-If you're using a continuous integration system like Travis-CI or
-GitHub Actions, then you've seen that GitHub has a nice red-X or
-green-check next to each commit that the student pushes. This
-command will read out those CI status marks from the latest
-commit from each student and will add up how many are passing
-and how many still have work yet to do. Also, if you've got a
-student who, for whatever reason, doesn't have a working CI
-process on their repository, this will flag them as "missing".
-This command runs relatively quickly. But if you're willing to
-wait a bit and you want a nice graph, see below.
-
 ### github_completion_times
 
-This takes a few minutes to run, but it reads all the available
-CI data and produces a plot over time of how many students have passed all
+This reads all the available
+CI data for every commit in every repo
+and produces a plot over time of how many students have passed all
 the tests and gotten a green checkmark. Here's an example from my
 own students, showing work in progress toward a deadline on 2019-09-01;
 you can see roughly 100 of 170 students have completed the work on
 the evening of 2019-08-30. 
 
 ![Example completion graph](example_completion.png)
-
-*(If you don't already have `matplotlib` installed,
-you'll need to install that to make the graphing work.)*
 
 The timezone used to render the chart is set from the
 `default_timezone` setting in `github_config.py`.

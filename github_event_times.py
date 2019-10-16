@@ -5,7 +5,6 @@
 
 import argparse
 import pprint
-import re
 from github_config import *
 from github_scanner import *
 
@@ -58,7 +57,7 @@ pp = pprint.PrettyPrinter(indent=2)
 
 
 for repo in github_repos:
-    response = get_github_endpoint_paged_list("repos/%s/%s/events" % (github_organization, repo), github_token)
+    response = parallel_get_github_endpoint_paged_list("repos/%s/%s/events" % (github_organization, repo), github_token)
     event_list = [x for x in response if x['type'] == 'PushEvent']
 
     print("\\begin{table}")

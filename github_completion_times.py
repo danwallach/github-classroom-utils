@@ -7,15 +7,11 @@ import argparse
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import datetime as dt
 
 from github_config import *
 from github_scanner import *
 
 default_output_filename = "out.pdf"
-
-# change this to get a different timezone for your plot
-matplotlib.rcParams['timezone'] = 'US/Central'
 
 parser = argparse.ArgumentParser(description='Generate a graph of how many students are passing at any given time')
 parser.add_argument('--token',
@@ -58,58 +54,46 @@ repo_seen = {}
 
 results = []
 
-sys.stdout.write("Loading")
-sys.stdout.flush()
-for repo in sorted(filtered_repo_list, key=lambda d: str.lower(d['full_name'])):
-    repo_name = repo['full_name']
-    short_name = repo['name']
-    if not desired_user(github_prefix, all_ignore_list, short_name):
-        continue
+print("Loading refs...")
 
-    num_repos = num_repos + 1
+ref_urls = [{'key': repo['full_name'], 'url': "repos/%s/git/refs" % repo['full_name']}
+            for repo in filtered_repo_list
+            if desired_user(github_prefix, all_ignore_list, repo['name'])]
 
-    # The GitHub API for getting the check status requires us to know
-    # the SHA1 hash for the commit we're checking.
+refs = parallel_get_github_endpoint(ref_urls, github_token)
 
-    # TODO: find a way to just name the HEAD of the master branch.
-    ref_responses = get_github_endpoint_paged_list("repos/%s/git/refs" % repo_name, github_token, verbose=False)
-    sys.stdout.write(":")
-    sys.stdout.flush()
+print("Loading check-suite data...")
 
-    for ref_response in ref_responses:
-        branch = ref_response['ref']
-        head_sha = ref_response['object']['sha']
-        if branch == "refs/heads/master" and head_sha not in sha_seen:
-            # print("repo: %s (%s)" % (repo_name, head_sha))
+desired_refs = [{'key': k, 'url': "repos/%s/commits/%s/check-suites" % (k, refs[k]['body'][0]['object']['sha'])}
+                for k in refs.keys()
+                if refs[k]['body'][0]['ref'] == 'refs/heads/master']
 
-            tmp_response = get_github_endpoint("repos/%s/commits/%s/check-suites" % (repo_name, head_sha),
-                                               github_token, verbose=False)
-            sys.stdout.write(".")
-            sys.stdout.flush()
+check_responses = parallel_get_github_endpoint(desired_refs, github_token)
+
+for repo_name in sorted(check_responses.keys()):
+    tmp_response = check_responses[repo_name]['body']
+    if 'check_suites' in tmp_response and len(tmp_response['check_suites']) > 0:
+        check_suites_response = tmp_response['check_suites'][0]
+        conclusion = check_suites_response['conclusion']
+        response_sha = check_suites_response['head_sha']
+        if response_sha not in sha_seen:
+            sha_seen[response_sha] = True
+            repo_seen[repo_name] = True
+            timestamp = iso8601.parse_date(check_suites_response['created_at'])
             num_check_suites = num_check_suites + 1
 
-            if 'check_suites' in tmp_response and len(tmp_response['check_suites']) > 0:
-                check_suites_response = tmp_response['check_suites'][0]
-                conclusion = check_suites_response['conclusion']
-                response_sha = check_suites_response['head_sha']
-                if response_sha not in sha_seen:
-                    sha_seen[response_sha] = True
-                    repo_seen[short_name] = True
-                    timestamp = iso8601.parse_date(check_suites_response['created_at'])
+            # print("%s: %s (%s, %s)" % (short_name, conclusion, timestamp, response_sha))
 
-                    # print("%s: %s (%s, %s)" % (short_name, conclusion, timestamp, response_sha))
+            result = {
+                'name': repo_name,
+                'conclusion': conclusion,
+                'timestamp': timestamp,
+                'sha': response_sha
+            }
 
-                    result = {
-                        'name': short_name,
-                        'conclusion': conclusion,
-                        'timestamp': timestamp,
-                        'sha': response_sha
-                    }
+            results.append(result)
 
-                    results.append(result)
-
-print("Done.")
-print("Total repos scanned: %d" % num_repos)
+print("Total repos scanned: %d" % len(check_responses))
 print("Total check-suites recorded / scanned: %d / %d" % (len(results), num_check_suites))
 
 sorted_results = sorted(results, key=lambda x: x['timestamp'])

@@ -21,6 +21,11 @@ parser.add_argument('--prefix',
                     nargs=1,
                     default=[default_prefix],
                     help='Prefix on projects to match (default: match all projects)')
+parser.add_argument('--safe',
+                    action="store_true",
+                    default=False,
+                    help="Creates cloned repos without the API token embedded. Pushing may not work," +
+                         " but repos are safer to share (default: API token is embedded)")
 parser.add_argument('--out',
                     nargs=1,
                     default=["."],
@@ -32,6 +37,7 @@ github_prefix = args.prefix[0]
 github_organization = args.org[0]
 github_token = args.token[0]
 out_dir = args.out[0]
+use_safe_clone = args.safe
 
 filtered_repo_list = query_matching_repos(github_organization, github_prefix, github_token)
 print("%d repos found for %s/%s" % (len(filtered_repo_list), github_organization, github_prefix))
@@ -51,23 +57,27 @@ if out_dir != ".":
 for repo in filtered_repo_list:
     clone_url = 'https://%s@github.com/%s.git' % (github_token, repo['full_name'])
     safe_clone_url = 'https://github.com/%s.git' % repo['full_name']
-    # Steps to take, per docs above:
-    #
-    # mkdir foo
-    # cd foo
-    # git init
-    # git pull https://<token>@github.com/username/bar.git
 
-    os.mkdir(repo['name'])
-    os.chdir(repo['name'])
-    subprocess.call(["git", "init"])
-    subprocess.call(["git", "pull", clone_url])
+    if use_safe_clone:
+        # Steps to take, per docs above:
+        #
+        # mkdir foo
+        # cd foo
+        # git init
+        # git pull https://<token>@github.com/username/bar.git
 
-    # Now, we set things up so push and pull will work, but we're *not* putting the GitHub key in place,
-    # since that makes these repos too dangerous to share. If you've got ssh keys set up with GitHub,
-    # then push and pull will still work.
+        os.mkdir(repo['name'])
+        os.chdir(repo['name'])
+        subprocess.call(["git", "init"])
+        subprocess.call(["git", "pull", clone_url])
 
-    subprocess.call(["git", "remote", "add", "origin", safe_clone_url])
-    subprocess.call(["git", "fetch"])
-    subprocess.call(["git", "branch", "--set-upstream-to=origin/master", "master"])
-    os.chdir('..')
+        # Now, we set things up so push and pull will work, but we're *not* putting the GitHub key in place,
+        # since that makes these repos too dangerous to share. If you've got ssh keys set up with GitHub,
+        # then push and pull will still work.
+
+        subprocess.call(["git", "remote", "add", "origin", safe_clone_url])
+        subprocess.call(["git", "fetch"])
+        subprocess.call(["git", "branch", "--set-upstream-to=origin/master", "master"])
+        os.chdir('..')
+    else:
+        subprocess.call(["git", "clone", clone_url])
