@@ -17,9 +17,7 @@ from datetime import datetime, timezone
 from requests.models import Response
 import requests
 import asyncio
-import aiohttp
-from aiohttp import ClientSession
-from urllib3.util.retry import Retry
+from aiohttp import ClientSession, ClientResponse
 
 
 scanner_cache = {}
@@ -93,9 +91,11 @@ def fail_on_github_errors(response: Response):
         exit(1)
 
 
-async def fail_on_github_errors_async(response: Retry):
+async def fail_on_github_errors_async(response: ClientResponse):
     if response.status != 200:
         print("\nRequest failed, status code: %d" % response.status)
+        print("Headers: %s\n" % dict_to_pretty_json(dict(response.headers)))
+        print("Body: %s\n" % dict_to_pretty_json(await response.json()))
         exit(1)
 
 
@@ -251,13 +251,13 @@ async def _parallel_get_github_endpoint(endpoint_list: List[dict], github_token:
             tasks.append(task)
 
         responses = await asyncio.gather(*tasks)
-        return {x['key']:x for x in responses}
+        return {x['key']: x for x in responses}
 
 
 def parallel_get_github_endpoint(endpoint_list: List[dict], github_token: str, verbose: bool = True) -> dict:
     """
     Similar to get_github_endpoint, but launches requests in parallel, returning a dictionary where
-    the keys are the original endpoint URLs, and the values are the same dictionaries that get_github_endpoing
+    the keys are the original endpoint URLs, and the values are the same dictionaries that get_github_endpoint
     would have returned. The endpoint_list is actually a list of dictionaries, which every entry must
     have two fields: 'key', which is an arbitrary string, and 'url', which is what will be fetched.
     The resulting dictionary will preserve these two fields and add a third one, 'body', with the result.
@@ -312,7 +312,7 @@ def parallel_get_github_endpoint_paged_list(endpoint: str, github_token: str, ve
     fail_on_github_errors(page1_result)
 
     link_header = page1_result.headers["Link"]
-    p = re.compile('page=(\d+)>; rel="last"')
+    p = re.compile('page=(\\d+)>; rel="last"')
     m = p.findall(link_header)
     if len(m) != 1:
         if verbose:
@@ -380,7 +380,5 @@ def desired_user(github_prefix: str, ignore_list: List[str], name: str, ignore_s
     lower_case_ignore_list = [x.lower() for x in ignore_list]
 
     m = student_name_from(github_prefix, name).lower()
-    absent_ignore_str = not ignore_str or name.lower().find(ignore_str.lower()) == -1
-    
     return m != "" and name.startswith(github_prefix) and name != github_prefix and \
         m not in lower_case_ignore_list and absent_ignore_str
