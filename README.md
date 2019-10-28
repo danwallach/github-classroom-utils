@@ -136,6 +136,12 @@ with GitHub Classroom. This will use GitHub's APIs to identify the
 names of each student associated with each repo and will adjust its
 printed output appropriately.
 
+Another new feature, `--ignore` lets you specify a substring of a repo
+name to ignore when assigning grading. We tell our graders, when they
+want to check out a repo to play with it, to add the word `STAFF` in
+the name. This helps us skip those so they don't get assigned to be
+graded.
+
 The output of this tool is in Markdown format, which Piazza has recently added.
 Select the Markdown button before cutting-and-pasting. We post this on Piazza,
 visible only to the graders, and we ask the graders to edit the post to mark the
