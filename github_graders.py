@@ -40,6 +40,10 @@ parser.add_argument('--students',
                     nargs=1,
                     default=[default_student_csv_name],
                     help="CSV file name with student information (default: student-info.csv)")
+parser.add_argument('--ignore',
+                    nargs=1,
+                    default=[""],
+                    help="string pattern in group names to ignore, e.g., STAFF (no default)")
 
 args = parser.parse_args()
 
@@ -48,6 +52,7 @@ github_organization = args.org[0]
 github_token = args.token[0]
 student_file_name = args.students[0]
 use_teams = args.teams
+ignore_str = args.ignore[0]
 
 # Python3's parametric type hints are ... a thing.
 T = TypeVar('T')
@@ -119,7 +124,7 @@ submissions = {}
 all_ignore_list = ignore_list + grader_list
 
 filtered_repo_list = [x for x in query_matching_repos(github_organization, github_prefix, github_token)
-                      if desired_user(github_prefix, all_ignore_list, x['name'])]
+                      if desired_user(github_prefix, all_ignore_list, x['name'], ignore_str)]
 
 if use_teams:
     team_info = fetch_team_infos(filtered_repo_list, github_token, True)
@@ -184,11 +189,29 @@ if use_teams:
         if desired_gids:
             filtered_repo_list.append(repo)
 
+# sanity check
+for repo in filtered_repo_list:
+    url = repo['final_url']
+    if url not in url_to_gids:
+        print("WARNING: %s missing from url_to_gids db" % url)
+    if url not in url_to_short:
+        print("WARNING: %s missing from url_to_short db" % url)
+    if url not in unique:
+        print("WARNING: %s missing from unique db (perhaps a student repo without a team?)" % url)
+    elif not unique[url]:
+        if not url in duplicates:
+            print("WARNING: %s missing from duplicates db" % url)
+        if not url in exemplar:
+            print("WARNING: %s missing from exemplar db" % url)
+        
+    
+              
 # note: we're shuffling the graders, so different graders get lucky each week when the load isn't evenly divisible
 # and, of course, we're shuffling the repos.
 all_urls = [repo['final_url']
             for repo in filtered_repo_list
-            if unique[repo['final_url']] or exemplar[repo['final_url']] == repo['final_url']]
+            if (repo['final_url'] in unique and unique[repo['final_url']]) or \
+                (repo['final_url'] in exemplar and exemplar[repo['final_url']] == repo['final_url'])]
 repo_db = {repo['final_url']: repo for repo in filtered_repo_list}
 
 random.shuffle(all_urls)
