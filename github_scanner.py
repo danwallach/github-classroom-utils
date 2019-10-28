@@ -19,7 +19,6 @@ import requests
 import asyncio
 from aiohttp import ClientSession, ClientResponse
 
-
 scanner_cache = {}
 
 
@@ -380,5 +379,7 @@ def desired_user(github_prefix: str, ignore_list: List[str], name: str, ignore_s
     lower_case_ignore_list = [x.lower() for x in ignore_list]
 
     m = student_name_from(github_prefix, name).lower()
-    return m != "" and name.startswith(github_prefix) and name != github_prefix and \
-        m not in lower_case_ignore_list and absent_ignore_str
+    absent_ignore_str = not ignore_str or name.lower().find(ignore_str.lower()) == -1
+
+    return m != "" and name.startswith(github_prefix) and name != github_prefix \
+        and m not in lower_case_ignore_list and absent_ignore_str
