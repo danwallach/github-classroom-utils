@@ -132,14 +132,18 @@ for repo in filtered_repo_list:
     for gid in gids:
         gid_to_repo[gid.lower()] = repo['final_url']
 
-for student in df_students['GitHubID']:
-    if student not in gid_to_repo:
-        print("%s not attached to any repos" % student_info(student))
+if not df_students_success:
+    print("No student database: cannot determine if we have missing students")
+else:
+    for student in df_students['GitHubID']:
+        if student not in gid_to_repo:
+            print("%s not attached to any repos" % student_info(student))
 
-for gid in gid_to_repo.keys():
-    if not student_known(gid):
-        print("GitHub ID %s is a partner in %s but isn't in the student database" % (gid, gid_to_repo[gid]))
+    for gid in gid_to_repo.keys():
+        if not student_known(gid):
+            print("GitHub ID %s is a partner in %s but isn't in the student database" % (gid, gid_to_repo[gid]))
 
 print("=========================================")
 
-print("Students with repos / students in database: %d / %d" % (len(gid_to_repo), len(df_students['GitHubID'])))
+if df_students_success:
+    print("Students with repos / students in database: %d / %d" % (len(gid_to_repo), len(df_students['GitHubID'])))
