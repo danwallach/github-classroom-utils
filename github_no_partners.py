@@ -63,6 +63,24 @@ except FileNotFoundError:
     pass
 
 
+def student_known(github_id: str) -> bool:
+    """
+    Given a GitHub IDs, returns whether that student is a known student in
+    the student-data CSV file.
+    """
+    if df_students_success:
+        matches = df_students[df_students['GitHubID'] == github_id.lower()]
+        if len(matches) == 1:
+            return True
+        elif len(matches) == 0:
+            return False
+        else:
+            print("Warning: two or more rows found for github-id (%s) in s info!\n" % github_id)
+            return True
+    else:
+        return False
+
+
 def student_info(github_id: str) -> str:
     """
     Given a GitHub IDs, returns a suitably human-readable string based on
@@ -95,7 +113,7 @@ filtered_repo_list = [x for x in query_matching_repos(github_organization, githu
 
 team_info = fetch_team_infos(filtered_repo_list, github_token, True)
 
-students_seen = {}
+gid_to_repo = {}
 
 print("=========================================")
 
@@ -112,12 +130,16 @@ for repo in filtered_repo_list:
             print("%s in a repo (%s) below min size (%d)" % (student_info(gid), repo['final_url'], min_team_size))
 
     for gid in gids:
-        students_seen[gid.lower()] = True
+        gid_to_repo[gid.lower()] = repo['final_url']
 
 for student in df_students['GitHubID']:
-    if student not in students_seen:
+    if student not in gid_to_repo:
         print("%s not attached to any repos" % student_info(student))
+
+for gid in gid_to_repo.keys():
+    if not student_known(gid):
+        print("GitHub ID %s is a partner in %s but isn't in the student database" % (gid, gid_to_repo[gid]))
 
 print("=========================================")
 
-print("Students with repos / students in database: %d / %d" % (len(students_seen), len(df_students['GitHubID'])))
+print("Students with repos / students in database: %d / %d" % (len(gid_to_repo), len(df_students['GitHubID'])))
