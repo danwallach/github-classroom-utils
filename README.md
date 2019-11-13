@@ -98,6 +98,15 @@ cloned repositories will be private, but what about the existing ones? This
 tool will tell GitHub to make private all the matching repositories. (I've
 needed this twice in so many years, so I figure others might need this as well.)
 
+### github_no_partners
+
+You tell the students that they're required to have a partner, or to have
+a minimum group size. How do you detect the missing students? This script
+does all that. It scans all the projects, extracts the teams, and lets
+you know about any project with fewer than the minimum number of members.
+Likewise, if there are students in your database who aren't attached to
+any GitHub projects, you get their information as well.
+
 ### github_graders
 
 If you're using GitHub Classroom, one of the things you may need to do is assign
