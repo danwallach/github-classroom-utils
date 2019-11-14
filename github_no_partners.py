@@ -114,6 +114,7 @@ filtered_repo_list = [x for x in query_matching_repos(github_organization, githu
 team_info = fetch_team_infos(filtered_repo_list, github_token, True)
 
 gid_to_repo = {}
+duplicates = {}
 
 print("=========================================")
 
@@ -127,10 +128,19 @@ for repo in filtered_repo_list:
 
     if len(gids) < min_team_size:
         for gid in gids:
-            print("%s in a repo (%s) below min size (%d)" % (student_info(gid), repo['final_url'], min_team_size))
+            print("%s in a repo below min size (%d)" % (student_info(gid), min_team_size))
+            print("  - %s" % repo['final_url'])
 
     for gid in gids:
-        gid_to_repo[gid.lower()] = repo['final_url']
+        gid_lower = gid.lower()
+        if gid_lower in gid_to_repo:
+            if gid_lower in duplicates:
+                duplicates[gid_lower][repo['final_url']] = True
+            else:
+                duplicates[gid_lower] = {}
+                duplicates[gid_lower][repo['final_url']] = True
+                duplicates[gid_lower][gid_to_repo[gid_lower]] = True
+        gid_to_repo[gid_lower] = repo['final_url']
 
 if not df_students_success:
     print("No student database: cannot determine if we have missing students")
@@ -141,7 +151,13 @@ else:
 
     for gid in gid_to_repo.keys():
         if not student_known(gid):
-            print("GitHub ID %s is a partner in %s but isn't in the student database" % (gid, gid_to_repo[gid]))
+            print("Unknown user <%s> is attached to a repo but isn't in the student database" % gid)
+            print("  - %s" % gid_to_repo[gid])
+
+for student in duplicates.keys():
+    print("%s appears in more than one repo!" % student_info(student))
+    for repo in duplicates[student].keys():
+        print("  - %s" % repo)
 
 print("=========================================")
 
