@@ -115,6 +115,8 @@ team_info = fetch_team_infos(filtered_repo_list, github_token, True)
 
 gid_to_repo = {}
 duplicates = {}
+num_students_in_repos_below_size = 0
+num_students_in_no_repo = 0
 
 print("=========================================")
 
@@ -130,6 +132,7 @@ for repo in filtered_repo_list:
         for gid in gids:
             print("%s in a repo below min size (%d)" % (student_info(gid), min_team_size))
             print("  - %s" % repo['final_url'])
+            num_students_in_repos_below_size = num_students_in_repos_below_size  + 1
 
     for gid in gids:
         gid_lower = gid.lower()
@@ -148,6 +151,7 @@ else:
     for student in df_students['GitHubID']:
         if student not in gid_to_repo:
             print("%s not attached to any repos" % student_info(student))
+            num_students_in_no_repo = num_students_in_no_repo + 1
 
     for gid in gid_to_repo.keys():
         if not student_known(gid):
@@ -163,3 +167,5 @@ print("=========================================")
 
 if df_students_success:
     print("Students with repos / students in database: %d / %d" % (len(gid_to_repo), len(df_students['GitHubID'])))
+    print("Students in repos with below the minimum number of partners: %d" % num_students_in_repos_below_size)
+    print("Students in no repo at all: %d" % num_students_in_no_repo)
