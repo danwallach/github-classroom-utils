@@ -310,16 +310,21 @@ def parallel_get_github_endpoint_paged_list(endpoint: str, github_token: str, ve
     page1_result = requests.get(endpoint, headers=headers)
     fail_on_github_errors(page1_result)
 
-    link_header = page1_result.headers["Link"]
-    p = re.compile('page=(\\d+)>; rel="last"')
-    m = p.findall(link_header)
-    if len(m) != 1:
-        if verbose:
-            print("Malformed header, didn't have pagination!")
-        return page1_result.json()
+    if "Link" in page1_result.headers:
+        link_header = page1_result.headers["Link"]
+        p = re.compile('page=(\\d+)>; rel="last"')
+        m = p.findall(link_header)
+        if len(m) != 1:
+            if verbose:
+                print("Malformed header, didn't have pagination!")
+            return page1_result.json()
 
-    num_pages = int(m[0])
-    if verbose:
+        num_pages = int(m[0])
+    else:
+        # no pagination with a small number of repos in the organization
+        num_pages = 1
+
+    if verbose and num_pages > 1:
         print("Fetching %d pages in parallel" % num_pages)
 
     urls = ["%s?page=%d" % (endpoint, n) for n in range(1, num_pages + 1)]
