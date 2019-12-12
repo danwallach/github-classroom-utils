@@ -39,7 +39,7 @@ parser.add_argument('--teams',
 parser.add_argument('--students',
                     nargs=1,
                     default=[default_student_csv_name],
-                    help="CSV file name with student information (default: student-info.csv)")
+                    help="CSV file name with student information (default: student-data.csv)")
 parser.add_argument('--ignore',
                     nargs=1,
                     default=[""],
