@@ -61,7 +61,7 @@ for repo in github_repos:
     event_list = [x for x in response if x['type'] == 'PushEvent']
 
     print("\\begin{table}")
-    print("\\begin{tabular}{lp{4in}l}")
+    print("\\begin{tabular}{llp{4in}l}")
     print("{\\bf GitHub ID} & {\\bf Commit ID} & {\\bf Comment} & {\\bf GitHub push time} \\\\")
     print("\\hline")
     for event in event_list:
