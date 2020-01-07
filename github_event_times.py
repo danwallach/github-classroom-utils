@@ -34,6 +34,14 @@ def tex_escape(text: str) -> str:
 
 
 parser = argparse.ArgumentParser(description='Get event timestamps from a GitHub repo.')
+parser.add_argument('--tiny',
+                    default=False,
+                    action="store_true",
+                    help='Uses LaTeX footnotesize to make the table smaller')
+parser.add_argument('--longtable',
+                    default=False,
+                    action="store_true",
+                    help='Generates a table with the LaTeX longtable package')
 parser.add_argument('--token',
                     nargs=1,
                     default=[default_github_token],
@@ -52,6 +60,8 @@ args = parser.parse_args()
 github_repos = args.repo
 github_organization = args.org[0]
 github_token = args.token[0]
+use_longtable = args.longtable
+use_footnotesize = args.tiny
 
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -60,10 +70,32 @@ for repo in github_repos:
     response = parallel_get_github_endpoint_paged_list("repos/%s/%s/events" % (github_organization, repo), github_token)
     event_list = [x for x in response if x['type'] == 'PushEvent']
 
-    print("\\begin{table}")
-    print("\\begin{tabular}{llp{4in}l}")
-    print("{\\bf GitHub ID} & {\\bf Commit ID} & {\\bf Comment} & {\\bf GitHub push time} \\\\")
-    print("\\hline")
+    if use_longtable:
+        if use_footnotesize:
+            print("{\\footnotesize")
+        print("\\begin{longtable}{llp{3in}l}")
+        print("{\\bf GitHub ID} & {\\bf Commit ID} & {\\bf Comment} & {\\bf GitHub push time} \\\\")
+        print("\\hline")
+        print("\\endhead")
+        print("\\hline")
+        if use_footnotesize:
+            print("\\caption{\\normalsize Events for " + repo + " \\label{events-" + repo + "}}")
+        else:
+            print("\\caption{Events for " + repo + " \\label{events-" + repo + "}}")
+        print("\\endlastfoot")
+        print("\\hline")
+        if use_footnotesize:
+            print("\\caption{\\normalsize Events for " + repo + "}")
+        else:
+            print("\\caption{Events for " + repo + "}")
+        print("\\endfoot")
+    else:
+        print("\\begin{table}")
+        if use_footnotesize:
+            print("{\\footnotesize")
+        print("\\begin{tabular}{llp{3in}l}")
+        print("{\\bf GitHub ID} & {\\bf Commit ID} & {\\bf Comment} & {\\bf GitHub push time} \\\\")
+        print("\\hline")
     for event in event_list:
         try:
             github_id = event['actor']['login']
@@ -76,8 +108,16 @@ for repo in github_repos:
         except KeyError:
             print("Error: malformed event!")
             pp.pprint(event)
-    print("\\hline")
-    print("\\end{tabular}")
-    print("\\caption{Events for " + repo + " \\label{events-" + repo + "}}")
-    print("\\end{table}")
+
+    if use_longtable:
+        print("\\end{longtable}")
+        if use_footnotesize:
+            print("} % end of footnotesize")
+    else:
+        print("\\hline")
+        print("\\end{tabular}")
+        if use_footnotesize:
+            print("} % end of footnotesize")
+        print("\\caption{Events for " + repo + " \\label{events-" + repo + "}}")
+        print("\\end{table}")
     print()

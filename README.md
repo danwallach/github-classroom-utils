@@ -163,9 +163,13 @@ graders to pick up the slack.)
 ### github_event_times
 
 This program uses the GitHub "Events" API to print all of the *push* times
-for each commit, with its output in LaTeX "tabular" format. This might be
+for each commit. This might be
 useful if you have a student who you suspect of falsifying commit times
-around a deadline and you need to document what happened.
+around a deadline and you need to document what happened. By default,
+you get a LaTeX "table" with a "tabular" inside. If the table is
+too large, you've got two useful flags, `--longtable` and `--tiny`.
+The former uses the LaTeX longtable package for multi-page tables.
+The latter uses a smaller font.
 
 Lets say you want to get the commit times for a series of repos
 with
