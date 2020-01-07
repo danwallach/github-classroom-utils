@@ -79,15 +79,13 @@ for repo in github_repos:
         print("\\endhead")
         print("\\hline")
         if use_footnotesize:
-            print("\\caption{\\normalsize Events for " + repo + " \\label{events-" + repo + "}}")
+            print("\\caption{Events for " + repo + " \\label{events-" + repo + "}}")
         else:
             print("\\caption{Events for " + repo + " \\label{events-" + repo + "}}")
         print("\\endlastfoot")
         print("\\hline")
-        if use_footnotesize:
-            print("\\caption{\\normalsize Events for " + repo + "}")
-        else:
-            print("\\caption{Events for " + repo + "}")
+        print("\\\\")
+        print("\\caption{Events for " + repo + "}")
         print("\\endfoot")
     else:
         print("\\begin{table}")
