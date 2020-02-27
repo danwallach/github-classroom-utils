@@ -133,11 +133,6 @@ their printable name, `Email` for their full university email address,
 and `NetID` for their university unique "network" identifier (which
 is often, but not always, their email address).
 
-For group projects, github_graders still does the assignments at
-random, but it cannot print all this per-user information, since
-the user names aren't always in the project name. We make our
-students edit the `README.md` file to include this information.
- 
 Typical usage: `python3 github_graders.py --prefix comp215-week06` will 
 print out everything you need, assuming your assignment repos are named `comp215-week06`
 with the students' names afterward. 
@@ -145,7 +140,9 @@ with the students' names afterward.
 A new feature, `--teams` is useful when students are working as teams
 with GitHub Classroom. This will use GitHub's APIs to identify the
 names of each student associated with each repo and will adjust its
-printed output appropriately.
+printed output appropriately. *We also have our students write their
+team information into their `README.md` files, which is a helpful
+backstop in case the GitHub metadata is incorrect.*
 
 Another new feature, `--ignore` lets you specify a substring of a repo
 name to ignore when assigning grading. We tell our graders, when they
