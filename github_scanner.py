@@ -1,10 +1,13 @@
 # github_scanner.py
 # Dan Wallach <dwallach@rice.edu>
+# Stephen Wong <swong@rice.edu>
 # Available subject to the Apache 2.0 License
 # https://www.apache.org/licenses/LICENSE-2.0
 
 # This file has all the shared logic for interacting with the GitHub service, including keeping
 # a local cache to speed things up.
+#
+# swong:  (8/24/21) Added put_github_endpoint()
 
 import iso8601
 import sys
@@ -228,6 +231,21 @@ def get_github_endpoint(endpoint: str, github_token: str, verbose: bool = True) 
 
     return result.json()
 
+def put_github_endpoint(endpoint: str, github_token: str, data_dict: dict = {}, verbose: bool = True) -> dict:
+    """
+    Perform a PUT operation to the given GitHub REST API endpoint
+    :param endpoint:   The GitHub REST API endpoint to use, either with or without the leading "https://api.github.com/" 
+    :param github_token: The GitHub Personal Access Token to use
+    :param data_dict:  The data dictionary that will be converted to JSON and then sent in the request body
+    :param verbose:  Ignored 
+    """
+    if not endpoint.startswith('https:'):
+        endpoint = 'https://api.github.com/' + endpoint
+
+    result = requests.put(endpoint, headers=github_headers(github_token), data= json.dumps(data_dict))  # Note:If the 'json' parameter is used instead, the content type will be changed to 'application/json'.   See https://docs.python-requests.org/en/latest/user/quickstart/ 
+    fail_on_github_errors(result)
+
+    return result.json()
 
 # inspiration for this parallel / asynchronous code:
 # https://pawelmhm.github.io/asyncio/python/aiohttp/2016/04/22/asyncio-aiohttp.html
