@@ -29,6 +29,7 @@ def main():
 
     parser.add_argument('--org',
                         nargs=1,
+                        default=[default_github_organization],
                         help='GitHub Organization')
     
     parser.add_argument('--team',

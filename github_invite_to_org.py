@@ -35,6 +35,7 @@ def main():
     
     parser.add_argument('--org',
                         nargs=1,
+                        default=[default_github_organization],
                         help='GitHub Organization')
     
     
@@ -66,7 +67,7 @@ def main():
         }      
         for member in members:
             print("inviting "+request_data["role"]+": ", member)
-            endpoint = endpoint_fmt.format(org= github_org, team_slug=team, username=member)
+            endpoint = endpoint_fmt.format(org= github_org, username=member)
             # print("endpoint = ", endpoint)
             result = put_github_endpoint(endpoint, github_token, data_dict=request_data)
             print("result =", dict_to_pretty_json(result))        

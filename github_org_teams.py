@@ -26,6 +26,7 @@ def main():
 
     parser.add_argument('--org',
                         nargs=1,
+                        default=[default_github_organization],
                         help='GitHub Organization')
     
 
@@ -37,7 +38,7 @@ def main():
     
     
     
-    endpoint = "orgs/{}/teams".format(github_org)
+    endpoint = "orgs/{org}/teams".format(org=github_org)
     result = get_github_endpoint(endpoint, github_token)
     print("result =", dict_to_pretty_json(result))        
 

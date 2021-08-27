@@ -197,6 +197,45 @@ the evening of 2019-08-30.
 The timezone used to render the chart is set from the
 `default_timezone` setting in `github_config.py`.
 
+### github_invite_to_org
+This will read a specified JSON file (`--file` parameter) to a GitHub organization (either the default in `github_config.py` or through the `--org` parameter) and invite the users specified in the file to the specified organization under the role associated with the user in the file.  
+
+The JSON file should define a dictionary (mapping) of `{role: [username,...]}` where `role` is designated role of the usernames in the associated list.   `role` is restricted to `member` or `admin` (owner).  Multiple roles can be specified in the dictionary but do not specify the same username for multiple roles as which role they will actually be assigned is ill-defined.
+
+The role to which each username is being invited will be printed as well as the response from GitHub showing the status of that request.
+
+The resultant printout is in the format of a series of JSON dictionaries.
+
+
+### github_org_teams
+This will print out information about the teams in a GitHub organization (either the default in `github_config.py` or through the `--org` parameter). 
+
+Note: The team name "slug" is included in the printout.
+
+The resultant printout is in a JSON dictionary format.
+
+
+### github_team_members
+This will print out the members of a specified team (`--team` parameter) a GitHub organization (either the default in `github_config.py` or through the `--org` parameter). 
+
+Note: The team name must be the team name `slug`.   This is the part of the GitHub URL that specifies team when browsing to the team on the web.   Typically, the slug is the team name with spaces replaced with dashes and no capital letters.
+
+The resultant printout is in a JSON dictionary format.
+
+
+### github_invite_to_team
+This will read a specified JSON file (`--file` parameter) to a specified team (`--team` parameter) a GitHub organization (either the default in `github_config.py` or through the `--org` parameter) and invite the users specified in the file to the specified organization under the role associated with the user in the file.  
+
+Note: The team name must be the team name `slug`.   This is the part of the GitHub URL that specifies team when browsing to the team on the web.   Typically, the slug is the team name with spaces replaced with dashes and no capital letters.
+
+The JSON file should define a dictionary (mapping) of `{team: [username,...]}` where `team` is team to invite the associate list of usernames.   Multiple teams can be specified in the dictionary and any username can be invited to multiple teams.
+
+The team to which each username is being invited will be printed as well as the response from GitHub showing the status of that request.
+
+The resultant printout is in the format of a series of JSON dictionaries.
+
+
+
 ## See also
 
 - I did a talk at SIGCSE 2019 about an earlier version of these tools.
@@ -219,3 +258,7 @@ The timezone used to render the chart is set from the
 - https://github.com/osteele/multiclone - another repo cloning tool, written in Golang
 
 - https://github.com/konzy/mass_clone - there are many forks of this, some with additional features
+
+
+## Recent Updates
+* (8/27/2021 by S. Wong) Added new functions to invite users to organizations and teams as well as to print out the teams in an organization and the members of a given team.
