@@ -59,7 +59,7 @@ def main():
 
     for org_role, members in data_dict.items():
         print("role = ", org_role,": ", members)
-        if team_role not in ALLOWED_ORG_ROLES:
+        if org_role not in ALLOWED_ORG_ROLES:
             print("ERROR:  Invalid organization role specified: ", org_role, " not in ", ALLOWED_ORG_ROLES, " Skipping these role assignments!")
             continue
         request_data = {
