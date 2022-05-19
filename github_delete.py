@@ -1,5 +1,6 @@
 # github_delete_all.py
 # Usage:  python3 github_delete.py --prefix SOMEPREFIX
+# Requires: gh CLI
 # Modified by See-Mong Tan <see-mong.tan@wwu.edu>
 # Dan Wallach <dwallach@rice.edu>
 # Available subject to the Apache 2.0 License
