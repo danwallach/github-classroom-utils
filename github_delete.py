@@ -6,7 +6,7 @@
 # Available subject to the Apache 2.0 License
 # https://www.apache.org/licenses/LICENSE-2.0
 
-# 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
+#
 # Make sure to do: gh auth login -s delete_repo
 
 import argparse
