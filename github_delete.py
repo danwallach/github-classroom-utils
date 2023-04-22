@@ -6,6 +6,9 @@
 # Available subject to the Apache 2.0 License
 # https://www.apache.org/licenses/LICENSE-2.0
 
+# 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
+# Make sure to do: gh auth login -s delete_repo
+
 import argparse
 import subprocess
 from github_config import *
@@ -27,12 +30,12 @@ parser.add_argument('--prefix',
 parser.add_argument('--safe',
                     action="store_true",
                     default=False,
-                    help="Creates cloned repos without the API token embedded. Pushing may not work," +
-                         " but repos are safer to share (default: API token is embedded)")
+                    help="Safe mode -- don't actually delete")
 parser.add_argument('--out',
                     nargs=1,
                     default=["."],
                     help='Destination directory for GitHub clones (default: current directory)')
+
 
 args = parser.parse_args()
 
@@ -40,10 +43,13 @@ github_prefix = args.prefix[0]
 github_organization = args.org[0]
 github_token = args.token[0]
 out_dir = args.out[0]
-use_safe_clone = args.safe
+safe_mode = args.safe
 
 filtered_repo_list = query_matching_repos(github_organization, github_prefix, github_token)
 print("%d repos found for %s/%s" % (len(filtered_repo_list), github_organization, github_prefix))
+
+for element in filtered_repo_list:
+    print(element["clone_url"])
 
 # before we start getting any repos, we need a directory to put them
 if out_dir != ".":
@@ -59,10 +65,13 @@ if out_dir != ".":
 
 for repo in filtered_repo_list:
     clone_url = 'https://%s@github.com/%s.git' % (github_token, repo['full_name'])
-    print("Deleting %s" % clone_url)
-    args = [
-        "gh", "api", "--method", "DELETE",
-        "-H", "Accept: application/vnd.github.v3+json",
-        "repos/" + repo['full_name']
-    ]
-    subprocess.call(args)
+    if safe_mode:
+        print("Found file: %s" % clone_url)
+    else:
+        print("Deleting %s" % clone_url)
+        args = [
+            "gh", "api", "--method", "DELETE",
+            "-H", "Accept: application/vnd.github.v3+json",
+            "repos/" + repo['full_name']
+        ]
+        subprocess.call(args)
